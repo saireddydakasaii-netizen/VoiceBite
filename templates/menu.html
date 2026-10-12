@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceBite - Menu & Voice Ordering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        @keyframes pulseMic {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-active { animation: pulseMic 1.5s infinite; background-color: #ef4444 !important; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <a href="/home" class="flex items-center space-x-3 text-red-500 font-bold text-xl">
+            <i class="fa-solid fa-microphone-lines"></i>
+            <span>VoiceBite</span>
+        </a>
+        <div class="flex items-center space-x-4">
+            <a href="/cart" class="relative text-slate-300 hover:text-white px-3 py-2 bg-slate-800 rounded-xl text-sm font-semibold flex items-center space-x-2">
+                <i class="fa-solid fa-cart-shopping text-red-400"></i>
+                <span>Cart</span>
+                <span id="cart-badge" class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </a>
+            <a href="/home" class="text-xs text-slate-400 hover:text-white">Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-10 flex-grow max-w-5xl">
+        
+        <!-- Voice Assistant Panel -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 mb-8 text-center shadow-xl relative overflow-hidden">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">AI Voice Food Assistant</div>
+            <h2 class="text-2xl font-bold mb-4">Tap Microphone & Speak Naturally</h2>
+            
+            <!-- Voice Button -->
+            <button id="mic-btn" onclick="startVoiceRecognition()" class="w-20 h-20 mx-auto bg-slate-800 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-3xl shadow-lg transition-all duration-300 mb-4 border border-slate-700">
+                <i class="fa-solid fa-microphone" id="mic-icon"></i>
+            </button>
+
+            <!-- Spoken Text Display -->
+            <div id="speech-status" class="text-sm font-medium text-slate-300 min-h-[24px]">
+                Click the microphone and speak (e.g., <span class="text-red-400 font-semibold">"Give me 2 Chicken Biryanis"</span>)
+            </div>
+        </div>
+
+        <!-- Menu Header -->
+        <h3 class="text-xl font-bold mb-6">Available Items</h3>
+
+        <!-- Menu Grid -->
+        <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Items loaded dynamically -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-slate-500 text-xs">
+        <p>&copy; 2026 VoiceBite. Powered by Web Speech AI.</p>
+    </footer>
+
+    <script>
+        const restaurantId = {{ restaurant_id | tojson }};
+        let menuItems = [];
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function updateCartBadge() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-badge').innerText = count;
+        }
+
+        async function fetchMenu() {
+            try {
+                const res = await fetch(`/api/menu/${restaurantId}`);
+                menuItems = await res.json();
+                
+                if (!menuItems || menuItems.length === 0) {
+                    const allRes = await fetch('/api/all-food-items');
+                    menuItems = await allRes.json();
+                }
+            } catch (err) {
+                console.error("Error fetching menu:", err);
+                try {
+                    const allRes = await fetch('/api/all-food-items');
+                    menuItems = await allRes.json();
+                } catch(e) {
+                    menuItems = [];
+                }
+            }
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menu-container');
+            if (!menuItems || menuItems.length === 0) {
+                container.innerHTML = `<p class="col-span-3 text-center text-slate-500 py-10">No items available at this restaurant yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = menuItems.map(item => `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="h-40 bg-slate-950 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-slate-800">
+                            ${item.image ? `<img src="/static/uploads/${item.image}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-utensils text-4xl text-slate-700"></i>`}
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-100">${item.name}</h4>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-2">${item.description || 'Freshly prepared delicious food.'}</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-800">
+                        <span class="text-red-400 font-bold text-lg">₹${item.price}</span>
+                        <button onclick="addToCart(${item.id}, '${item.name}', ${item.price}, 1)" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            + Add
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(itemId, name, price, quantity = 1) {
+            const existing = cart.find(i => i.id === itemId);
+            if (existing) {
+                existing.quantity += quantity;
+            } else {
+                cart.push({ id: itemId, name, price, quantity, restaurant_id: restaurantId });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+        }
+
+        // --- AI TEXT-TO-SPEECH VOICE FEEDBACK ---
+        function speakAIResponse(message) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.1;
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // --- VOICE RECOGNITION LOGIC ---
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert("Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            const micBtn = document.getElementById('mic-btn');
+            const micIcon = document.getElementById('mic-icon');
+            const statusText = document.getElementById('speech-status');
+
+            recognition.onstart = () => {
+                micBtn.classList.add('mic-active');
+                micIcon.className = "fa-solid fa-waveform text-white animate-spin";
+                statusText.innerHTML = `<span class="text-red-400 font-bold animate-pulse"><i class="fa-solid fa-circle text-xs mr-1"></i> AI Listening... Speak now!</span>`;
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                statusText.innerHTML = `You said: <span class="text-emerald-400 font-bold">"${transcript}"</span>`;
+                processVoiceCommand(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                statusText.innerText = "Could not recognize speech. Please try again.";
+                stopMic();
+            };
+
+            recognition.onend = () => {
+                stopMic();
+            };
+
+            function stopMic() {
+                micBtn.classList.remove('mic-active');
+                micIcon.className = "fa-solid fa-microphone";
+            }
+
+            recognition.start();
+        }
+
+        // --- PROCESS CONVERSATIONAL VOICE COMMANDS ---
+        function processVoiceCommand(text) {
+            let quantity = 1;
+            const wordToNum = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+            
+            const numberMatch = text.match(/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/i);
+            if (numberMatch) {
+                const val = numberMatch[0].toLowerCase();
+                quantity = parseInt(val) || wordToNum[val] || 1;
+            }
+
+            let found = false;
+            for (let item of menuItems) {
+                const itemNameLower = item.name.toLowerCase();
+                const itemKeywords = itemNameLower.split(' ').filter(w => w.length > 2);
+                const matchesKeyword = itemKeywords.some(keyword => text.includes(keyword));
+
+                if (text.includes(itemNameLower) || matchesKeyword) {
+                    addToCart(item.id, item.name, item.price, quantity);
+                    
+                    const successMsg = `Added ${quantity} ${item.name} to cart successfully!`;
+                    document.getElementById('speech-status').innerHTML += `<br><span class="text-emerald-400 font-bold">✓ ${successMsg}</span>`;
+                    
+                    // AI Speaks back confirmation
+                    speakAIResponse(successMsg);
+                    
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                const warningMsg = "Sorry, I could not find that item in the menu. Please try another dish.";
+                document.getElementById('speech-status').innerHTML += `<br><span class="text-amber-400 font-bold">⚠️ ${warningMsg}</span>`;
+                
+                // AI Speaks back error warning
+                speakAIResponse(warningMsg);
+            }
+        }
+
+        updateCartBadge();
+        fetchMenu();
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceBite - User Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; color: #f8fafc; overflow-x: hidden; }
+        .bg-video {
+            position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; object-fit: cover; z-index: -2;
+        }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <!-- Looping Food Video Background -->
+    <video autoplay muted loop class="bg-video">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-juicy-hamburger-with-melted-cheese-close-up-42998-large.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="max-w-4xl w-full bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row backdrop-blur-md">
+        
+        <!-- Left Side: Boy Illustration -->
+        <div class="md:w-1/2 bg-slate-950/60 p-8 flex flex-col justify-between relative border-r border-slate-800">
+            <div>
+                <a href="/" class="flex items-center space-x-3 text-red-500 font-bold text-xl">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span>VoiceBite</span>
+                </a>
+            </div>
+            
+            <div class="my-auto flex items-center justify-center py-4">
+                <img src="/static/images/boy.png" alt="Voice Assistant Boy" class="max-h-96 w-auto object-contain drop-shadow-2xl">
+            </div>
+
+            <div></div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="md:w-1/2 p-10 flex flex-col justify-center">
+            <h3 class="text-xl font-bold mb-6">User Login</h3>
+            <div id="error-msg" class="hidden mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl"></div>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+                    <input type="email" id="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                    <input type="password" id="password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 transition">
+                    <div class="text-right mt-1.5">
+                        <a href="/forgot-password" class="text-xs text-red-400 hover:underline font-medium">Forgot Password?</a>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-600/30 transition">Login Now</button>
+            </form>
+            
+            <p class="text-xs text-slate-400 text-center mt-6">Don't have an account? <a href="/signup" class="text-red-400 font-semibold hover:underline">Sign up first</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if(data.success) {
+                window.location.href = data.redirect;
+            } else {
+                const errBox = document.getElementById('error-msg');
+                errBox.innerText = data.error;
+                errBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

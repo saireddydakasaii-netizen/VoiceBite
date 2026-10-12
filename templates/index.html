@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceBite - Online Voice Food Ordering</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        /* Floating animation for the 3D boy toy */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .floating-toy {
+            animation: float 4s ease-in-out infinite;
+        }
+        /* Pulse glow for microphone icon */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-red-500 text-white p-2.5 rounded-xl shadow-lg mic-pulse">
+                <i class="fa-solid fa-microphone-lines text-xl"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-wider bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">VoiceBite</span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-300">
+            <a href="#home" class="hover:text-red-400 transition">Home</a>
+            <a href="#services" class="hover:text-red-400 transition">Services</a>
+            <a href="#accessibility" class="hover:text-red-400 transition">Why Voice Commands?</a>
+            <a href="#about" class="hover:text-red-400 transition">About Us</a>
+        </div>
+        <div class="flex space-x-4">
+            <a href="/login" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-sm font-semibold transition border border-slate-700">User Login</a>
+            <a href="/restaurant/login" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-red-600/30 transition">Restaurant Partner</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="container mx-auto px-6 py-12 lg:py-20 flex flex-col lg:flex-row items-center justify-between">
+        
+        <!-- Left Side: Animated 3D Toy Boy with Mic -->
+        <div class="lg:w-1/2 flex justify-center mb-12 lg:mb-0 relative">
+            <!-- Background glow -->
+            <div class="absolute w-72 h-72 bg-red-600/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            
+            <div class="relative floating-toy bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl border border-slate-700 shadow-2xl max-w-sm text-center">
+                <!-- Placeholder for Toy Image (Replace URL with your 3D boy toy graphic anytime) -->
+                <div class="w-64 h-72 mx-auto bg-slate-950 rounded-2xl overflow-hidden flex flex-col items-center justify-center relative border border-slate-800 shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=500&auto=format&fit=crop" alt="Toy Boy with Mic" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                    <div class="z-10 p-4 bg-red-600/90 text-white rounded-full shadow-lg mic-pulse mb-3">
+                        <i class="fa-solid fa-microphone text-3xl"></i>
+                    </div>
+                    <span class="z-10 text-xs font-bold uppercase tracking-widest text-red-400 bg-red-950/80 px-3 py-1 rounded-full border border-red-800">Voice Active AI</span>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-bold text-slate-100">"Order Biryani Quantity 1"</h3>
+                    <p class="text-xs text-slate-400 mt-1">Speak naturally & let AI handle your cravings instantly!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Content & Actions -->
+        <div class="lg:w-1/2 text-center lg:text-left space-y-6">
+            <span class="bg-red-500/10 text-red-400 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-red-500/20">India's #1 Voice-Powered Food Delivery</span>
+            <h1 class="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                Welcome to Online <span class="bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent">Voice Food Ordering</span>
+            </h1>
+            <p class="text-slate-400 text-base lg:text-lg leading-relaxed">
+                Experience lightning-fast food ordering like Zomato & Swiggy, completely hands-free! Browse top local restaurants, view 30+ interactive food items per store, and order effortlessly using simple voice commands.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-4">
+                <a href="/signup" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-xl shadow-xl shadow-red-600/30 transition flex items-center justify-center space-x-3">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Get Started as User</span>
+                </a>
+                <a href="/login" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-8 py-4 rounded-xl border border-slate-700 transition flex items-center justify-center space-x-3">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Login to Account</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services & Accessibility Section -->
+    <section id="services" class="bg-slate-900/60 border-t border-slate-800 py-16">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold">Why Choose VoiceBite?</h2>
+                <p class="text-slate-400 text-sm mt-2">Designed for supreme convenience, speed, and absolute accessibility.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-lg hover:border-red-500/50 transition">
+                    <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">About Voice Ordering</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Say goodbye to endless tapping. Use direct voice commands like <span class="text-red-400 font-semibold">"Open Paradise Restaurant"</span> or <span class="text-red-400 font-semibold">"Order Mutton Biryani Quantity 2"</span> to complete orders in seconds.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div id="accessibility" class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-lg hover:border-red-500/50 transition">
+                    <div class="w-14 h-14 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-universal-access"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Empowering Everyone</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Specifically built to support **blind individuals** and **physically disabled people** who find traditional multi-tap smartphone screens difficult or impossible to navigate. Food delivery should be barrier-free for all.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div id="about" class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-lg hover:border-red-500/50 transition">
+                    <div class="w-14 h-14 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Zomato / Swiggy Grade Speed</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Featuring 24-hour live stock updates managed by restaurant partners, dynamic UPI/QR code scanning, and live delivery tracking animation right to your doorstep.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-8 text-center text-slate-500 text-sm">
+        <p>&copy; 2026 VoiceBite. Built for seamless voice food ordering. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceBite - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; }</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar Code for User Pages -->
+<nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+    <a href="/home" class="flex items-center space-x-3 text-red-500 font-bold text-xl">
+        <i class="fa-solid fa-microphone-lines"></i>
+        <span>VoiceBite</span>
+    </a>
+    
+    <div class="flex items-center space-x-4">
+        <!-- Voice Assistant Guide / Status -->
+        <span class="hidden sm:inline-block text-xs text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+            <i class="fa-solid fa-microphone text-red-400 mr-1"></i> Say "Open [Restaurant]"
+        </span>
+        
+        <a href="/profile" class="text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl border border-slate-700 transition flex items-center space-x-2">
+            <i class="fa-solid fa-user text-red-400"></i>
+            <span>My Profile</span>
+        </a>
+        
+        <!-- Single Working Logout Button -->
+        <a href="/logout" class="text-xs sm:text-sm font-semibold text-red-400 hover:text-red-300 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20 transition">
+            Logout
+        </a>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <span class="bg-red-500/10 text-red-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-red-500/20">Voice-Powered Discovery</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold mt-3">Welcome to Online Voice Food Ordering</h1>
+            <p class="text-slate-400 text-sm mt-2">Select a restaurant below or use your voice command to open one!</p>
+        </div>
+
+        <div id="restaurant-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Dynamically loaded restaurants will appear here -->
+            <div class="text-center text-slate-500 col-span-3 py-12">Loading available restaurants...</div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-slate-500 text-xs">
+        <p>&copy; 2026 VoiceBite. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let restaurantsData = [];
+
+        async function fetchRestaurants() {
+            const res = await fetch('/api/restaurants');
+            restaurantsData = await res.json();
+            const container = document.getElementById('restaurant-list');
+            
+            if(restaurantsData.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 col-span-3 py-12">No restaurants available right now. Please check back later or register a restaurant!</div>`;
+                return;
+            }
+
+            container.innerHTML = restaurantsData.map(r => `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl hover:border-red-500/50 transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-red-600/10 text-red-500 rounded-xl flex items-center justify-center text-xl mb-4 border border-red-500/20">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-100">${r.restaurant_name}</h3>
+                        <p class="text-slate-400 text-xs mt-2"><i class="fa-solid fa-location-dot mr-1"></i> ${r.address}</p>
+                    </div>
+                    <a href="/menu/${r.id}" class="mt-6 block text-center bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white font-bold py-3 rounded-xl text-sm transition">
+                        View Menu & Order
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        fetchRestaurants();
+
+        // Voice Command setup for opening restaurants
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            const voiceBtn = document.getElementById('voice-btn');
+            const voiceStatus = document.getElementById('voice-status');
+
+            voiceBtn.addEventListener('click', () => {
+                recognition.start();
+                voiceStatus.innerText = "Listening...";
+                voiceBtn.classList.add('bg-red-600', 'text-white');
+            });
+
+            recognition.onresult = (event) => {
+                const speech = event.results[0][0].transcript.toLowerCase();
+                voiceStatus.innerText = `Heard: "${speech}"`;
+                voiceBtn.classList.remove('bg-red-600', 'text-white');
+
+                // Check if speech matches any restaurant name
+                restaurantsData.forEach(r => {
+                    if (speech.includes(r.restaurant_name.toLowerCase()) || speech.includes('open ' + r.restaurant_name.toLowerCase())) {
+                        window.location.href = `/menu/${r.id}`;
+                    }
+                });
+            };
+
+            recognition.onerror = () => {
+                voiceStatus.innerText = `Say "Open [Restaurant]"`;
+                voiceBtn.classList.remove('bg-red-600', 'text-white');
+            };
+            
+            recognition.onend = () => {
+                voiceStatus.innerText = `Say "Open [Restaurant]"`;
+            };
+        }
+    </script>
+</body>
+</html>
